@@ -35,7 +35,8 @@
 
         <h2>Diğer</h2>
         <p>
-            Sunucu hakkında (dkda bir güncelleniyo):<br><br>
+            Sunucu hakkında (dkda bir güncelleniyo):<br>
+            <div class="kod">
             <?php
                 function komutlariYazdir($cmds){
                     $maxUzunluk = max(array_map('strlen', $cmds));
@@ -74,6 +75,7 @@
                     echo file_get_contents($cacheDosya);
                 }
             ?>
+            </div>
         </p>
 
         <br>
@@ -86,6 +88,11 @@
 
             body {
                 font-family: monospace;
+            }
+
+            .kod {
+                overflow-x: auto;
+                white-space: nowrap;
             }
         </style>
     </body>
