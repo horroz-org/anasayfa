@@ -38,18 +38,44 @@
             Sunucu hakkında (dkda bir güncelleniyo):<br>
             <div class="kod">
             <?php
+                $komutlar = [
+                    ["uptime"],
+                    ["uptime -p"],
+                    ["uptime -s"],
+                    [null],
+                    ["sunucu", "hostname"],
+                    [null],
+                    ["son giriş", "lastlog -u $(ls /home) | tail -n 1 | awk '{\$1=\"\"; \$2=\"\"; \$3=\"\"; print \$0 }'"]
+                ];
+
                 function komutlariYazdir($cmds){
-                    $maxUzunluk = max(array_map('strlen', $cmds));
+                    $maxUzunluk = max(array_map(function($k) { return ($k[0] === null) ? 0 : mb_strlen($k[0]); }, $cmds));
 
                     $html = "";
-                    foreach($cmds as $cmd){
+                    foreach($cmds as $komut){
+                        $bas = $komut[0];
+                        $cmd = end($komut);
+                        
                         if($cmd === null){
                             $html .= "<br>";
                             continue;
                         }
                         
-                        $baslik = str_replace(" ", "&nbsp;", str_pad($cmd . ":", $maxUzunluk + 5));
-                        $html .= "<b>" . $baslik . "</b><span class='italik monospace'>" . trim(exec($cmd)) . "</span><br>";
+                        $baslik = str_replace(" ", "&nbsp;", mb_str_pad($bas . ":", $maxUzunluk + 5));
+                        
+                        $out = [];
+                        exec($cmd, $out);
+
+                        $html .= "<b>" . $baslik . "</b><span class='italik monospace'>";
+                        $i = 0;
+                        foreach($out as $line){
+                            if($i !== 0){
+                                $html .= str_repeat("&nbsp;", $maxUzunluk + 5);
+                            }
+                            $html .= trim($line) . "<br>";
+                            $i++;
+                        }
+                        $html .= "</span>";
                     }
 
                     return $html;
@@ -67,7 +93,7 @@
                 }
 
                 if($lazim){
-                    $html = komutlariYazdir(["uptime", "uptime -p", "uptime -s", null, "hostname"]);
+                    $html = komutlariYazdir($komutlar);
                     file_put_contents($cacheDosya, $html);
                     echo $html;
                 }
